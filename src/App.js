@@ -1,23 +1,25 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Col, Container, Row } from 'react-bootstrap';
 import { useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast, ToastContainer } from 'react-toastify';
-import editRow from './functions/editRow';
-import deleteData from './functions/deleteData';
-import EntryForm from './components/EntryForm';
-import UserTable from './components/EntryTable';
+import editRow from './helpers/editRow';
+import deleteData from './helpers/deleteData';
+import Register from './components/Register/Register';
+import Login from './components/Login/Login';
+import UserDetails from './components/UserDetails/UserDetails';
 
 function App() {
+  const [view, setView] = useState('Register');
   const [formData, setFormData] = useState({
     uname: '',
     uemail: '',
     uphone: '',
-    umessage: '',
+    upassword: '',
     index: ''
   });
 
-  const [userData, setUserData] = useState([]);
+  const [showUser, setShowUser] = useState({});
+  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData')) || []);
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
@@ -25,21 +27,26 @@ function App() {
       uname: formData.uname,
       uemail: formData.uemail,
       uphone: formData.uphone,
-      umessage: formData.umessage
+      upassword: formData.upassword,
     };
 
     if (formData.index === "") {
-      const checkFilterUser = userData.filter((v) => v.uemail === formData.uemail || v.uphone === formData.uphone);
+      const checkEmailExists = userData.some((v) => v.uemail === formData.uemail);
+      const checkPhoneExists = userData.some((v) => v.uphone === formData.uphone);
 
-      if (checkFilterUser.length === 1) {
-        toast.error("Email or phone number already exists...");
+      if (checkEmailExists) {
+        toast.error("Email already exists...");
+      } else if (checkPhoneExists) {
+        toast.error("Phone number already exists...");
       } else {
-        setUserData([...userData, currentFormData]);
+        const updatedUserData = [...userData, currentFormData];
+        setUserData(updatedUserData);
+        localStorage.setItem('userData', JSON.stringify(updatedUserData));
         setFormData({
           uname: '',
           uemail: '',
           uphone: '',
-          umessage: '',
+          upassword: '',
           index: ''
         });
         toast("Data added..");
@@ -50,50 +57,59 @@ function App() {
       const checkFilterUser = userData.filter((v, i) => (v.uemail === formData.uemail || v.uphone === formData.uphone) && i !== editIndex);
 
       if (checkFilterUser.length === 0) {
-        oldData[editIndex] = { ...currentFormData };
+        oldData[editIndex] = currentFormData;
         setUserData(oldData);
+        localStorage.setItem('userData', JSON.stringify(oldData));
         setFormData({
           uname: '',
           uemail: '',
           uphone: '',
-          umessage: '',
+          upassword: '',
           index: ''
         });
+        toast("Data updated..");
+        setView("login")
       } else {
         toast.error("Email or phone number already exists...");
       }
     }
   };
 
+  const handleLogin = (loginInfo) => {
+    const user = userData.filter((v) => v.uname === loginInfo.uname && v.upassword === loginInfo.upassword);
+
+    if (user.length > 0) {
+      setShowUser(user[0]);
+      setView('UserDetails');
+    } else {
+      alert('Invalid username or password');
+    }
+  };
+
   return (
-    <Container fluid>
+    <>
+      {view === "Register" ? (
+        <Register
+          formData={formData}
+          setFormData={setFormData}
+          handleFormSubmit={handleFormSubmit}
+          setView={setView}
+        />
+      ) : view === "login" ? (
+        <Login onLogin={handleLogin} onViewChange={setView} />
+      ) : view === "UserDetails" ? (
+        <UserDetails
+          showUser={showUser}
+          editRow={editRow}
+          deleteData={deleteData}
+          setFormData={setFormData}
+          setUserData={setUserData}
+          setView={setView}
+          userData={userData}
+        />
+      ) : null }
       <ToastContainer />
-      <Container>
-        <Row>
-          <Col className='text-center py-5'>
-            <h1>Entry Form</h1>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={5}>
-            <EntryForm
-              formData={formData}
-              setFormData={setFormData}
-              handleFormSubmit={handleFormSubmit}
-            />
-          </Col>
-          <Col lg={7}>
-            <UserTable 
-              userData={userData}
-              editRow={editRow}
-              deleteData={deleteData}
-              setFormData={setFormData}
-              setUserData={setUserData}
-            />
-          </Col>
-        </Row>
-      </Container>
-    </Container>
+    </>
   );
 }
 
