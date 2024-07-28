@@ -7,8 +7,8 @@ import Login from './components/Login/Login';
 import UserDetails from './components/UserDetails/UserDetails';
 
 function App() {
-  const [view, setView] = useState('Register');
-  const [formData, setFormData] = useState({
+  const [view, setView] = useState('Register');          //To show different page views
+  const [formData, setFormData] = useState({             //To set the form data
     uname: '',
     uemail: '',
     uphone: '',
@@ -16,7 +16,7 @@ function App() {
     index: ''
   });
 
-  const [showUser, setShowUser] = useState({});
+  const [showUser, setShowUser] = useState({});         //To show user details
   const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData')) || []);
 
   const handleFormSubmit = (event) => {
@@ -28,7 +28,7 @@ function App() {
       upassword: formData.upassword,
     };
 
-    if (formData.index === "") {
+    if (formData.index === "") {                       //To add data in Local Storage
       const checkEmailExists = userData.some((v) => v.uemail === formData.uemail);
       const checkPhoneExists = userData.some((v) => v.uphone === formData.uphone);
 
@@ -47,14 +47,19 @@ function App() {
           upassword: '',
           index: ''
         });
-        toast("Data added..");
+        toast("Account Created..");
       }
-    } else {
+    } else {                                         //To update data in Local Storage
       const editIndex = formData.index;
-      const oldData = [...userData];
-      const checkFilterUser = userData.filter((v, i) => (v.uemail === formData.uemail || v.uphone === formData.uphone) && i !== editIndex);
+      const oldData = [...userData];      
+      const checkEmailExists = userData.some((v,i) =>( v.uemail === formData.uemail) && i !== editIndex);
+      const checkPhoneExists = userData.some((v,i) =>( v.uphone === formData.uphone )&& i !== editIndex);
 
-      if (checkFilterUser.length === 0) {
+      if (checkEmailExists) {
+        toast.error("Email already exists...");
+      } else if (checkPhoneExists) {
+        toast.error("Phone number already exists...");
+      } else {
         oldData[editIndex] = currentFormData;
         setUserData(oldData);
         localStorage.setItem('userData', JSON.stringify(oldData));
@@ -65,11 +70,10 @@ function App() {
           upassword: '',
           index: ''
         });
-        toast("Data updated..");
+        toast("Details updated..");
         setView("login")
-      } else {
-        toast.error("Email or phone number already exists...");
       }
+      
     }
   };
 

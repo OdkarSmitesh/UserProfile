@@ -22,7 +22,7 @@ const UserDetails = ({ showUser, editRow, deleteData, setFormData, setUserData, 
         <p className="card-text">Password: {showUser.upassword}</p>
         <button className="btn btn-primary" onClick={handleEdit}>Edit</button>
         <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-        <button className="btn btn-secondary" onClick={() => setView('login')}>Back to Login</button>
+        <button className="btn btn-secondary" onClick={() => setView('login')}>Back</button>
       </div>
     </div>
   );

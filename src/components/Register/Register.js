@@ -12,6 +12,7 @@ const Register = ({ formData, setFormData, handleFormSubmit, setView }) => {
 
   return (
     <form onSubmit={handleFormSubmit} className="register-form">
+      <h3>Create Account</h3>
       <div className='form-group'>
         <label className='form-label'>Name:</label>
         <input
@@ -60,7 +61,7 @@ const Register = ({ formData, setFormData, handleFormSubmit, setView }) => {
         Save
       </button>
       <p />
-      <button className='btn btn-secondary' type="button" onClick={() => setView("login")}>Show Details</button>
+      <button className='btn btn-secondary' type="button" onClick={() => setView("login")}>Existing User</button>
     </form>
   );
 };
